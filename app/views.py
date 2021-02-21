@@ -13,6 +13,30 @@ from flask import render_template, request, redirect, url_for, flash
 # Routing for your application.
 ###
 
+from .forms import ContactForm
+from app import mail
+from flask_mail import Message
+
+@app.route('/contact',methods=['GET','POST'])
+def contact():
+	"""Render website's home page."""
+	form = ContactForm()
+	if form.validate_on_submit():
+		print("sent")
+		name = request.form['name']
+		email = request.form['email']
+		subject = request.form['subject']
+		message = request.form['body']
+		
+		msg = Message(subject, sender=(name,email),recipients=["to@example.com"])
+		msg.body = message
+		mail.send(msg)
+		
+		flash("Message sent successfully")
+		return redirect(url_for('home'))
+	flash_errors(form)
+	return render_template('contact.html',form=form)
+
 @app.route('/')
 def home():
     """Render website's home page."""
